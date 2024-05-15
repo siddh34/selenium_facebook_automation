@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-    <!-- other classpath entries... -->
-    <classpathentry kind="lib" path="target/selenium-1.0-SNAPSHOT.jar"/>
+    <classpathentry kind="lib" path="./target/selenium-1.0-SNAPSHOT.jar"/>
 </classpath>
