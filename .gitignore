@@ -1,0 +1,7 @@
+# Folders
+maven-archiver
+maven-status
+generated-sources
+
+# Files
+selenium-*.jar
