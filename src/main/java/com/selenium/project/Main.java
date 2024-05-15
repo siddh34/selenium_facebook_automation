@@ -7,8 +7,7 @@ public class Main {
     public static void main(String[] args) {
         System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
         WebDriver driver = new FirefoxDriver();
-        driver.get("http://www.google.com");
-        System.out.println(driver.getTitle());
+        driver.get("https://www.facebook.com");
         driver.quit();
     }
 }
