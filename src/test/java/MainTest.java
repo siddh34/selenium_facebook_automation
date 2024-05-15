@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Disabled;
 public class MainTest {
     @Test
     @Order(1)
-    @Disabled
     public void testFacebookLoad() {
         System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
         WebDriver driver = new FirefoxDriver();
@@ -28,7 +27,6 @@ public class MainTest {
 
     @Test
     @Order(2)
-    @Disabled
     public void login() {
         Dotenv dotenv = Dotenv.load();
 
@@ -60,8 +58,13 @@ public class MainTest {
 
     @Test
     @Order(3)
-    @Disabled
     public void createPost(){
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Dotenv dotenv = Dotenv.load();
 
         System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
@@ -130,6 +133,12 @@ public class MainTest {
     @Test
     @Order(4)
     public void deletePost(){
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Dotenv dotenv = Dotenv.load();
 
         System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
@@ -154,7 +163,7 @@ public class MainTest {
         // go to profile
         driver.get("https://www.facebook.com/profile");
 
-        WebDriverWait wait = new WebDriverWait(driver, 10); // wait for up to 10 seconds
+        WebDriverWait wait = new WebDriverWait(driver, 20); // wait for up to 10 seconds
         // find post with text
         String message2 = "@highlight";
         WebElement post = wait.until(ExpectedConditions
@@ -174,8 +183,8 @@ public class MainTest {
         // click on delete post
 
         // handle the confirmation pop-up
-        WebElement deletePostOptionfinalButton = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(),'Move')]")));
+        WebElement deletePostOptionfinalButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(
+                "/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div[3]/div/div/div/div/div[1]/div/div")));
         deletePostOptionfinalButton.click();
 
         // Wait for the page to load
