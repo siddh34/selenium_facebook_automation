@@ -1,4 +1,11 @@
 import org.junit.Assert;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -7,33 +14,39 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Disabled;
 
 @TestMethodOrder(OrderAnnotation.class)
 public class MainTest {
+    private static WebDriver driver;
+    private Dotenv dotenv;
+
+    MainTest() {
+        driver = new FirefoxDriver();
+        this.dotenv = Dotenv.load();
+    }
+
+    @BeforeAll
+    public static void setup() throws InterruptedException {
+        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
+        Thread.sleep(5000);
+        driver.get("https://www.facebook.com");
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        driver.quit();
+        System.clearProperty("webdriver.gecko.driver");
+    }
+
     @Test
     @Order(1)
     public void testFacebookLoad() {
-        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
-        WebDriver driver = new FirefoxDriver();
-        driver.get("https://www.facebook.com");
         Assert.assertEquals("https://www.facebook.com/", driver.getCurrentUrl());
-        driver.quit();
     }
 
     @Test
     @Order(2)
     public void login() {
-        Dotenv dotenv = Dotenv.load();
-
-        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
-        WebDriver driver = new FirefoxDriver();
-        driver.get("https://www.facebook.com");
-
         WebElement emailField = driver.findElement(By.id("email"));
         WebElement passwordField = driver.findElement(By.id("pass"));
         WebElement loginButton = driver.findElement(By.name("login"));
@@ -42,35 +55,18 @@ public class MainTest {
         passwordField.sendKeys(dotenv.get("FB_PASSWORD"));
         loginButton.click();
 
-        // Wait for the page to load
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        System.out.println("url ::::" + driver.getCurrentUrl());
-
         Assert.assertEquals("https://www.facebook.com/", driver.getCurrentUrl());
-
-        driver.quit();
     }
 
     @Test
     @Order(3)
     public void createPost(){
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        Dotenv dotenv = Dotenv.load();
-
-        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
-        WebDriver driver = new FirefoxDriver();
-        driver.get("https://www.facebook.com");
-
         WebElement emailField = driver.findElement(By.id("email"));
         WebElement passwordField = driver.findElement(By.id("pass"));
         WebElement loginButton = driver.findElement(By.name("login"));
@@ -126,25 +122,12 @@ public class MainTest {
 
         Assert.assertEquals("https://www.facebook.com/", driver.getCurrentUrl());
 
-        driver.quit();
     }
 
 
     @Test
     @Order(4)
     public void deletePost(){
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        Dotenv dotenv = Dotenv.load();
-
-        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
-        WebDriver driver = new FirefoxDriver();
-        driver.get("https://www.facebook.com");
-
         WebElement emailField = driver.findElement(By.id("email"));
         WebElement passwordField = driver.findElement(By.id("pass"));
         WebElement loginButton = driver.findElement(By.name("login"));
@@ -195,7 +178,5 @@ public class MainTest {
         }
 
         Assert.assertNotEquals("https://www.facebook.com/", driver.getCurrentUrl());
-
-        driver.quit();
     }
 }
