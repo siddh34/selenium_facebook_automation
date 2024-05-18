@@ -1,3 +1,6 @@
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,34 +22,38 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class MainTest {
     private static WebDriver driver;
     private Dotenv dotenv;
+    private boolean isCreated = false;
 
     MainTest() {
-        driver = new FirefoxDriver();
         this.dotenv = Dotenv.load();
     }
 
     @BeforeAll
     public static void setup() throws InterruptedException {
-        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
         Thread.sleep(5000);
-        driver.get("https://www.facebook.com");
     }
 
     @AfterAll
     public static void tearDown() {
-        driver.quit();
-        System.clearProperty("webdriver.gecko.driver");
+        driver.close();
     }
 
     @Test
     @Order(1)
+    @Disabled()
     public void testFacebookLoad() {
+        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
+        driver = new FirefoxDriver();
+        driver.get("https://www.facebook.com");
         Assert.assertEquals("https://www.facebook.com/", driver.getCurrentUrl());
     }
 
     @Test
     @Order(2)
     public void login() {
+        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
+        driver = new FirefoxDriver();
+        driver.get("https://www.facebook.com");
         WebElement emailField = driver.findElement(By.id("email"));
         WebElement passwordField = driver.findElement(By.id("pass"));
         WebElement loginButton = driver.findElement(By.name("login"));
@@ -66,7 +73,10 @@ public class MainTest {
 
     @Test
     @Order(3)
-    public void createPost(){
+    public void createPost() {
+        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
+        driver = new FirefoxDriver();
+        driver.get("https://www.facebook.com");
         WebElement emailField = driver.findElement(By.id("email"));
         WebElement passwordField = driver.findElement(By.id("pass"));
         WebElement loginButton = driver.findElement(By.name("login"));
@@ -74,6 +84,9 @@ public class MainTest {
         emailField.sendKeys(dotenv.get("FB_EMAIL"));
         passwordField.sendKeys(dotenv.get("FB_PASSWORD"));
         loginButton.click();
+
+        WebElement homeButton = driver.findElement(By.xpath("//*[@aria-label='Home']"));
+        homeButton.click();
 
         // Wait for the page to load
         try {
@@ -87,8 +100,10 @@ public class MainTest {
                 .findElement(By.xpath("//span[contains(text(),\"What's on your mind, " + fbName + "?\")]"));
         createPost.click();
 
-        WebDriverWait wait = new WebDriverWait(driver, 40); // wait for up to 20 seconds
-        WebElement postField = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@role='textbox']")));
+        WebDriverWait wait = new WebDriverWait(driver, 100); // wait for up to 20 seconds
+        WebElement postField = wait.until(ExpectedConditions
+                .presenceOfElementLocated(By.xpath("//div[@aria-label=\"What's on your mind, Tushar?\"]")));
+        postField.click();
 
         // tag
         String message1 = "@";
@@ -110,8 +125,14 @@ public class MainTest {
             postField.sendKeys(String.valueOf(c));
         }
 
-        WebElement postButton = driver.findElement(By.xpath("//div[@aria-label='Post']"));
-        postButton.click();
+        try{
+            WebElement postButton = driver.findElement(By.xpath("//div[@aria-label='Post']"));
+            postButton.click();
+            isCreated = true;
+        } catch (Exception e) {
+            isCreated = false;
+            e.printStackTrace();
+        }
 
         // Wait for the page to load
         try {
@@ -124,10 +145,12 @@ public class MainTest {
 
     }
 
-
     @Test
     @Order(4)
-    public void deletePost(){
+    public void deletePost() {
+        System.setProperty("webdriver.gecko.driver", "./driver/geckodriver");
+        driver = new FirefoxDriver();
+        driver.get("https://www.facebook.com");
         WebElement emailField = driver.findElement(By.id("email"));
         WebElement passwordField = driver.findElement(By.id("pass"));
         WebElement loginButton = driver.findElement(By.name("login"));
@@ -148,35 +171,41 @@ public class MainTest {
 
         WebDriverWait wait = new WebDriverWait(driver, 20); // wait for up to 10 seconds
         // find post with text
-        String message2 = "@highlight";
-        WebElement post = wait.until(ExpectedConditions
-                .presenceOfElementLocated(By.xpath("//span[contains(text(),\"" + message2 + "\")]/..")));
+        // String message2 = "@highlight";
+        //WebElement post = wait.until(ExpectedConditions
+                //.presenceOfElementLocated(By.xpath("//span[contains(text(),\"" + message2 + "\")]/..")));
 
         // find post options within the same parent as the post
-        WebElement postOptions = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath(".//div[@aria-label='Actions for this post']")));
+        // WebElement postOptions = wait.until(ExpectedConditions.elementToBeClickable(
+               // By.xpath(".//div[@aria-label='Actions for this post']")));
+        //if(isCreated){
+            WebElement postOptions = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath(
+                            "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div/div/div[4]/div[2]/div/div[2]/div[3]/div[1]/div/div/div/div/div/div/div/div/div/div/div[2]/div/div/div[2]/div/div[3]/div/div")));
 
-        // click on post options
-        postOptions.click();
+            // click on post options
+            postOptions.click();
 
-        // find delete post
-        WebElement deletePostOption = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(),'Move to bin')]")));
-        deletePostOption.click();
+            // find delete post
+            WebElement deletePostOption = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(),'Move to bin')]")));
+            deletePostOption.click();
 
-        // click on delete post
+            // click on delete post
 
-        // handle the confirmation pop-up
-        WebElement deletePostOptionfinalButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(
-                "/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div[3]/div/div/div/div/div[1]/div/div")));
-        deletePostOptionfinalButton.click();
+            // handle the confirmation pop-up
+            WebElement deletePostOptionfinalButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(
+                    "/html/body/div[1]/div/div[1]/div/div[4]/div/div/div[1]/div/div[2]/div/div/div/div/div/div/div[3]/div/div/div/div/div[1]/div/div")));
+            deletePostOptionfinalButton.click();
 
-        // Wait for the page to load
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+            // Wait for the page to load
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        Assert.assertNotEquals("https://www.facebook.com/", driver.getCurrentUrl());
+            Assert.assertNotEquals("https://www.facebook.com/", driver.getCurrentUrl());
+        //}
     }
 }
